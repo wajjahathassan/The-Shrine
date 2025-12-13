@@ -8,7 +8,7 @@ The Shrine is a web application that simulates the backend mechanics of a Role-P
 
 I built this project to bridge the gap between **interactive design** (Game Logic) and **software engineering** (Backend Architecture).
 
-- **Live Demo:** [Insert your PythonAnywhere Link Here]
+- **Live Demo:** [https://wajahat2106hassan.pythonanywhere.com)]
 - **Tech Stack:** Python, Flask, SQLite, JavaScript (ES6), HTML5/CSS3.
 
 ## ⚙️ Key Features
