@@ -1,0 +1,55 @@
+body{
+    background-color: #f4e4bc;     /* A parchment-like paper color */
+    font-family: 'Crimson Text', serif;
+    color: #3e2723;     /* Dark brown text */
+}
+
+.shrine-frame{
+    width: 600px;     /* Limit the width so it's not too wide */
+    margin: 50px auto;     /* The 'auto' magic centers it horizontally! */
+    background-color: #fff8e1;     /* Light paper background */
+    padding: 40px;     /* Space inside the frame */
+    border: 5px solid #5d4037;     /* Thick wooden border */
+    border-radius: 15px;     /* Rounded corners */
+    text-align: center;     /* Center all the text inside */
+    box-shadow: 0px 10px 20px rgba(0,0,0,0.3);     /* A spooky shadow */
+}
+
+/* Style the input boxes */
+input{
+    padding: 10px;
+    border: 2px solid #5d4037;     /* Dark wood color */
+    border-radius: 5px;
+    background-color: #fff8e1;     /* Light paper color */
+    font-family: 'Crimson Text', serif;
+    font-size: 16px;
+}
+
+/* Style the buttons */
+button{
+    background-color: #5d4037;     /* Dark wood color */
+    color: #f4e4bc;     /* Parchment text color */
+    margin: 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Crimson Text', serif;
+    font-size: 16px;
+    transition: background-color 0.3s;     /* Smooth animation */
+}
+
+/* The 'Hover' State */
+button:hover{
+    background-color: #3e2723;     /* Even darker wood */
+}
+
+ul{
+    list-style-type: none;     /* Kills the bullet points */
+    padding: 0;     /* Removes the default left indentation */
+}
+
+li{
+    margin: 10px 0;     /* Adds a little space between items */
+    font-size: 18px;     /* Makes the items slightly larger */
+}

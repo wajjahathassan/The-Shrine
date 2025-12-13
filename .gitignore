@@ -1,0 +1,4 @@
+.env
+__pycache__/
+save_data.txt
+test_ai.py

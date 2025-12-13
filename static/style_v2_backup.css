@@ -1,0 +1,211 @@
+body {
+  background-color: #f4e4bc;
+  /* A parchment-like paper color */
+  font-family: "Crimson Text", serif;
+  color: #3e2723;
+  /* Dark brown text */
+}
+
+.shrine-frame {
+  width: 600px;
+  /* Limit the width so it's not too wide */
+  margin: 50px auto;
+  /* The 'auto' magic centers it horizontally! */
+  background-color: #fff8e1;
+  /* Light paper background */
+  padding: 40px;
+  /* Space inside the frame */
+  border: 5px solid #5d4037;
+  /* Thick wooden border */
+  border-radius: 15px;
+  /* Rounded corners */
+  text-align: center;
+  /* Center all the text inside */
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
+  /* A spooky shadow */
+}
+
+.returnLink {
+  display: block;
+  text-align: right;
+  margin-top: 40px;
+  color: #3e2723;
+  font-size: 15px;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.returnLink:hover {
+  color: #8d6e63;
+}
+
+/* Style the input boxes */
+input {
+  padding: 10px;
+  border: 2px solid #5d4037;
+  /* Dark wood color */
+  border-radius: 5px;
+  background-color: #fff8e1;
+  /* Light paper color */
+  font-family: "Crimson Text", serif;
+  font-size: 16px;
+}
+
+/* Style the buttons */
+button {
+  background-color: #5d4037;
+  /* Dark wood color */
+  color: #f4e4bc;
+  /* Parchment text color */
+  margin: 5px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: "Crimson Text", serif;
+  font-size: 16px;
+  transition: background-color 0.3s;
+  /* Smooth animation */
+}
+
+/* The 'Hover' State */
+button:hover {
+  background-color: #3e2723;
+  /* Even darker wood */
+}
+
+ul {
+  list-style-type: none;
+  /* Kills the bullet points */
+  padding: 0;
+  /* Removes the default left indentation */
+}
+
+li {
+  margin: 10px 0;
+  /* Adds a little space between items */
+  font-size: 18px;
+  /* Makes the items slightly larger */
+}
+
+/* Full width header bar */
+.top-navBar {
+  display: flex;
+  /* Activates the "Flex" layout engine */
+  justify-content: space-between;
+  /* Pushes items to opposite edges! */
+  align-items: center;
+  /* Centers them vertically */
+  padding: 20px 40px;
+  /* Breathing room on the sides */
+  border-bottom: 2px solid rgba(93, 64, 55, 0.15);
+  /* A subtle line to separate it */
+}
+
+/* Styles the logo to look like text buttons */
+.logo a {
+  text-decoration: none;
+  color: #3e2723;
+  font-size: 24px;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.logo a:hover {
+  color: #8d6e63;
+  /* Lighter brown on hover */
+}
+
+/* Resets the list inside the bar so it sits flat */
+.navBar-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Make list items sit side-by-side */
+.navBar-links li {
+  display: inline-block;
+  margin-left: 20px;
+}
+
+/* Styles the links to look like text buttons */
+.navBar-links a {
+  text-decoration: none;
+/* Removes the underline */
+  color: #3e2723;
+  font-size: 20px;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.navBar-links a:hover {
+  color: #8d6e63;
+  /* Lighter brown on hover */
+}
+
+/* Resetting the main button container to be invisible */
+.rpg-btn{
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  margin: 10px;
+  display: inline-flex;
+  flex-direction: column; /* Stacking top to bottom */
+  align-items: center;  /* Centering everything */
+  transition: transform 0.2s;
+}
+
+/* Creating the Floating Circle (Head) */
+.icon{
+  width: 70px;
+  height: 70px;
+  border-radius: 50%; /* Creates perfect circle */
+  background-color: #5d4037;  /* Dark wood */
+  border: 3px solid #a1887f;  /* Bronze ring */
+  font-size: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1; /* Sits behind the label */
+}
+
+/* Creating the Label Banner (Body) */
+.label{
+  background-color: #3e2723;  /* Even darker wood */
+  color: #f4e4bc;             /* Parchment text */
+  padding: 5px 15px;
+  border-radius: 5px;
+  font-family: 'Crimson Text', serif;
+  font-weight: bold;
+  font-size: 16px;
+  border: 2px solid #a1887f;
+  margin-top: -14px;          /* PULLS UP! This overlaps the circle */
+  z-index: 2;                 /* Sits in front of the circle */
+  min-width: 80px;            /* Ensure consistent width */
+}
+
+/* Hover Effect: Bounce */
+.rpg-btn:hover{
+  transform: translateY(-5px);
+}
+
+.rpg-btn:hover .icon{
+  border-color: #f4e4bc;  /* Circle glows */
+}
+
+/* The Merchant Control Panel */
+.merchant-form{
+  display: flex;  /* Aligns the Input Group and the Button side-by-side */
+  align-items: center;  /* Centers them vertically */
+  justify-content: center;  /* Centers the whole form in the frame */
+  gap: 15px;  /* Puts space between the inputs and the button */
+  margin-top: 20px; /* Creates breathing room from the inventory list */
+}
+
+.merchant-inputs{
+  display: flex;
+  flex-direction: column;   /* Stacks the text boxes vertically! */
+  gap: 8px;   /* Puts space between the Item Name and Cost boxes */
+}

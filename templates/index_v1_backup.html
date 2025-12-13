@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <title>The Shrine</title>
+  </head>
+
+  <body>
+    <div class="shrine-frame">
+      <h1>Welcome to the Shrine</h1>
+      <p>The Caretaker is watching.</p>
+      <p>Cleanliness: {{shrine.cleanliness_score}}</p>
+      <p>Energy: {{shrine.spirit_energy}}</p>
+
+      <form action="/clean" method="POST">
+        <button type="submit">Clean</button>
+      </form>
+
+      <form action="/meditate" method="POST">
+        <button type="submit">Meditate</button>
+      </form>
+
+      <form action="/ask_wisdom" method="POST">
+        <button type="submit">Wisdom</button>
+      </form>
+
+      {% if response %}
+      <p class="wisdom-text">{{response}}</p>
+      {% endif %}
+
+      <ul>
+        {% for key, value in shrine.inventory.items() %}
+        <li>{{ key }}: {{ value }}</li>
+        {% endfor %}
+      </ul>
+
+      <form action="/merchant" method="POST">
+        <input type="text" name="item_name" placeholder="Item Name" />
+        <input type="number" name="cost" placeholder="Cost" />
+        <button type="submit">The Merchant</button>
+      </form>
+    </div>
+  </body>
+</html>

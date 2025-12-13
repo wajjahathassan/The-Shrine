@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <title>The Shrine</title>
+  </head>
+
+  <body>
+    <nav class="top-navBar">
+      <div class="logo"><a href="/">The Shrine</a></div>
+      <ul class="navBar-links">
+        <li><a href="/about">About the Caretaker</a></li>
+      </ul>
+    </nav>
+
+    <div class="shrine-frame">
+      <h1>Welcome to the Shrine</h1>
+      <p>The Caretaker is watching.</p>
+      <p>Cleanliness: {{shrine.cleanliness_score}}</p>
+      <p>Energy: {{shrine.spirit_energy}}</p>
+
+      <div class="btns-row">
+        <form action="/clean" method="POST" style="display: inline">
+          <button type="submit" class="rpg-btn">
+            <div class="icon">🧹</div>
+            <div class="label">Clean</div>
+          </button>
+        </form>
+
+        <form action="/meditate" method="POST" style="display: inline">
+          <button type="submit" class="rpg-btn">
+            <div class="icon">🧘🏻‍♀️</div>
+            <div class="label">Meditate</div>
+          </button>
+        </form>
+
+        <form action="/ask_wisdom" method="POST" style="display: inline">
+          <button type="submit" class="rpg-btn">
+            <div class="icon">📜</div>
+            <div class="label">Wisdom</div>
+          </button>
+        </form>
+      </div>
+
+      {% if response %}
+      <p class="wisdom-text">{{response}}</p>
+      {% endif %}
+
+      <ul>
+        {% for key, value in shrine.inventory.items() %}
+        <li>{{ key }}: {{ value }}</li>
+        {% endfor %}
+      </ul>
+
+      <form action="/merchant" method="POST" class="merchant-form">
+        <div class="merchant-inputs">
+          <input type="text" name="item_name" placeholder="Item Name" />
+          <input type="number" name="cost" placeholder="Cost" />
+        </div>
+        <button type="submit" class="rpg-btn">
+          <div class="icon">⚖️</div>
+          <div class="label">The Merchant</div>
+        </button>
+      </form>
+    </div>
+  </body>
+</html>
