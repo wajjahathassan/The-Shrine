@@ -1,0 +1,3 @@
+The Shrine was created by Wajahat Hassan.
+Wajahat is a software developer with a background in Electrical Engineering. He pivoted to software and co-founded SparkE Production.
+He is currently building his future in South Korea, and built this project to demonstrate his skills in Python, Flask, and AI.

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,700;1,400&display=swap"
+    />
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
+    <title>About the Caretaker</title>
+  </head>
+
+  <body>
+    <div class="shrine-frame">
+      <h1>About the Caretaker</h1>
+      <p>
+        <strong>I am Wajahat Hassan</strong>. I actually started out in
+        Electrical Engineering. I spent a long time in that field, getting my
+        Bachelor's and then my Master's. To be honest, I eventually realized
+        that hardware wasn't really for me, but getting through those degrees
+        taught me the most valuable thing I know:
+        <strong>how to think like an engineer</strong>.
+      </p>
+      <p>
+        I learned how to be patient and how to break down big, scary problems
+        into small, logical steps. Today, I use that same 'engineer's mind' when
+        I'm <strong>coding in Python</strong>. I didn't leave my past behind; I
+        just switched my toolkit from circuits to code to work on something I
+        actually love.
+      </p>
+      <p>
+        Then, my career took a bit of a turn. I helped start SparkE Production,
+        a small 3D animation company, along with four of my relatives. We didn't
+        really have a boss. It was just the five of us trying to figure
+        everything out together. I ended up doing a little bit of everything -
+        from talking to clients on Fiverr to keeping track of deadlines and
+        <strong>solving whatever technical problems came up</strong>.
+      </p>
+      <p>
+        Working with tools like Unreal Engine and Blender taught me that design
+        is actually a lot like programming. I spent a lot of time fixing
+        crashes, organizing files, and making sure we delivered good work on
+        time. It made me realize that whether I'm building a 3D scene or a
+        Python app, it's really about the same thing: having a good structure,
+        using logic, and solving puzzles to make something cool.
+      </p>
+      <p>
+        <strong>Why I Built "The Shrine"</strong><br />I built this application
+        because I wanted to prove to myself that I could handle a full software
+        system. I used <strong>Python</strong> and <strong>Flask</strong> for
+        the backend, <strong>SQLite</strong> to manage data, and even integrated
+        <strong>Google's AI</strong> to make the "Wisdom" feature work.
+      </p>
+      <p>
+        It wasn't easy. I had to learn how to handle asynchronous data (so the
+        page doesn't reload every time you click) and how to organize my code
+        using Object-Oriented Programming so it didn't turn into a mess. This
+        project is my way of showing that I have the foundation to do this work
+        professionally.
+      </p>
+      <p>
+        <strong>My Future in South Korea</strong><br />Now, my goal is to
+        <strong>build my future in South Korea</strong>, specifically around
+        Asan and its neighboring cities. You might be wondering, why there?
+        Well, I already have a pretty strong connection to the area. My wife is
+        currently a GKS scholar at a university in this region. Through her,
+        I've seen firsthand that this whole area is a really unique mix of
+        traditional history and massive high-tech industry.
+      </p>
+      <p>
+        Whether I am pursuing a Master's in Computer Science or working as a
+        developer, being in this environment gives me the stability and support
+        system I need to do my best work. I have the discipline from my
+        Engineering background, and I have the drive from teaching myself to
+        code. Now, I am just looking for the right place to apply it.
+      </p>
+
+      <h2>Technical Skills</h2>
+      <ul>
+        <li>Python & Flask</li>
+        <li>HTML & CSS</li>
+        <li>Object-Oriented Programming (OOP)</li>
+        <li>Generative AI & LLMs</li>
+        <li>3D Design (Blender, Unreal Engine, Marvelous Designer)</li>
+      </ul>
+
+      <a class="returnLink" href="/">Return to Shrine</a>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+      function showToast(message) {
+        // Finding the container
+        var container = document.getElementById("toast-container");
+
+        // Creating the element
+        var toast = document.createElement("div");
+        toast.className = "toast-message";
+        toast.innerText = message;
+
+        // Adds it to the screen
+        container.appendChild(toast);
+
+        // Removes it after 5 seconds
+        setTimeout(function () {
+          toast.remove();
+        }, 5000);
+      }
+
+      // We use Jinja2 syntax to check the 'reward' variable
+      {% if reward %}
+        showToast("✨ Achievement Unlocked: Curious Spirit! ✨");
+
+        var audio = new Audio("{{url_for('static', filename='achievement.mp3')}}");
+        audio.play();
+      {% endif %}
+    </script>
+  </body>
+</html>

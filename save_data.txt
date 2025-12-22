@@ -1,0 +1,1 @@
+{"cleanliness": 0, "energy": 0, "inventory": {}}

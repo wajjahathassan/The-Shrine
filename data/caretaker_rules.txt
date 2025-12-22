@@ -1,0 +1,4 @@
+To maintain the Shrine, a Caretaker must balance two things: Cleanliness and Spirit Energy.
+1. Cleaning: Sweeping the floors increases Cleanliness by 5 points. If Cleanliness reaches 50, the Shrine is considered "Pure."
+2. Meditating: Sitting in silence increases Spirit Energy, which is required to buy items.
+3. The Curious Spirit: There is a hidden achievement. If a Caretaker visits the "About" page to learn about the creator, they are awarded the "Curious Spirit" item automatically.

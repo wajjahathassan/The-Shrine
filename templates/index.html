@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <title>The Shrine</title>
+  </head>
+
+  <body>
+    <nav class="top-navBar">
+      <div class="logo"><a href="/">The Shrine</a></div>
+      <ul class="navBar-links">
+        <li><a href="/about">About the Caretaker</a></li>
+      </ul>
+    </nav>
+
+    <div class="shrine-frame">
+      <h1>Welcome to the Shrine</h1>
+      <p>The Caretaker is watching.</p>
+      <p>Cleanliness: {{shrine.cleanliness_score}}</p>
+      <p>Energy: <span id="energy-score">{{shrine.spirit_energy}}</span></p>
+
+      <div class="btns-row">
+        <form action="/clean" method="POST" style="display: inline">
+          <button type="submit" class="rpg-btn">
+            <div class="icon">🧹</div>
+            <div class="label">Clean</div>
+          </button>
+        </form>
+
+        <form action="/meditate" method="POST" style="display: inline">
+          <button type="submit" class="rpg-btn">
+            <div class="icon">🧘🏻‍♀️</div>
+            <div class="label">Meditate</div>
+          </button>
+        </form>
+
+        <form action="/ask_wisdom" method="POST" style="display: inline">
+          <button type="submit" class="rpg-btn">
+            <div class="icon">📜</div>
+            <div class="label">Wisdom</div>
+          </button>
+        </form>
+
+        <button type="button" class="rpg-btn" onclick="openInventory()">
+          <div class="icon">🏺</div>
+          <div class="label">Inventory</div>
+        </button>
+      </div>
+
+      {% if response %}
+      <p class="wisdom-text">{{response}}</p>
+      {% endif %}
+
+      <ul>
+        {% for key, value in shrine.inventory.items() %}
+        <li>{{ key }}: {{ value }}</li>
+        {% endfor %}
+      </ul>
+
+      <form action="/merchant" method="POST" class="merchant-form">
+        <div class="merchant-inputs">
+          <input type="text" name="item_name" placeholder="Item Name" />
+          <input type="number" name="cost" placeholder="Cost" />
+        </div>
+        <button type="submit" class="rpg-btn">
+          <div class="icon">⚖️</div>
+          <div class="label">The Merchant</div>
+        </button>
+      </form>
+
+      <div class="separator-line"></div>
+
+      <div class="chat-section">
+        <h3>Ask the Spirits</h3>
+        <div id="chat-display" class="chat-box">
+          <p class="chat-placeholder">The spirits are listening...</p>
+        </div>
+
+        <div class="chat-controls">
+          <input
+            type="text"
+            id="user-question"
+            class="chat-input"
+            placeholder="Ask a question..."
+          />
+          <button onclick="askShrine()" class="chat-send-btn">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="inventoryModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeInventory()">&times;</span>
+        <h2>Caretaker's Inventory</h2>
+
+        <div class="inventory-grid">
+          {% for key, value in shrine.inventory.items() %}
+
+          <form action="/sell" method="POST" class="item-slot">
+            <input type="hidden" name="item_name" value="{{ key }}" />
+
+            <input type="hidden" name="cost" value="{{ prices[key] }}" />
+
+            <div class="item-icon">{{ items[key] }}</div>
+            <div class="item-name">{{ key }}</div>
+            <div class="item-count">{{ value }}</div>
+
+            <button type="submit" class="sell-btn">
+              Sell ({{ prices[key] }})
+            </button>
+          </form>
+
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+      // Getting the modal
+      var modal = document.getElementById("inventoryModal");
+
+      // Function to open the window
+      function openInventory() {
+        modal.style.display = "block";
+      }
+
+      // Function to close the window
+      function closeInventory() {
+        modal.style.display = "none";
+      }
+
+      // Function to spawn a notification
+      function showToast(message) {
+        // Finding the container
+        var container = document.getElementById("toast-container");
+
+        // Creating the element
+        var toast = document.createElement("div");
+        toast.className = "toast-message";
+        toast.innerText = message;
+
+        // Adds it to the screen
+        container.appendChild(toast);
+
+        // Removes it after 3 seconds (3000 milliseconds)
+        setTimeout(function () {
+          toast.remove();
+        }, 3000);
+      }
+
+      // Waiting for the page to load
+      document.addEventListener("DOMContentLoaded", function () {
+        // Finds ALL forms with the class 'item-slot' (my sell forms)
+        var forms = document.querySelectorAll(".item-slot");
+
+        // Loops through them and attaches a listener
+        forms.forEach(function (form) {
+          form.addEventListener("submit", function (event) {
+            // STOPS THE RELOAD!
+            event.preventDefault();
+
+            // Creates a new variable with the data from THIS specific form
+            var payload = new FormData(event.target);
+
+            // Sending the data to Python!
+            fetch("/sell", {
+              method: "POST", // Sending the data
+              body: payload, // The variable we just packed
+            })
+              .then((response) => response.json()) // Converts reply to JSON
+              .then((data) => {
+                // Uses the data
+                // This runs when Python replies
+                if (data.success) {
+                  // Success! Tells the user.
+                  showToast("Item sold! Spirit Energy: " + data.new_energy);
+
+                  document.getElementById("energy-score").innerText =
+                    data.new_energy;
+                  // document.querySelector("...").innerText = data.new_energy;
+
+                  // Checks the new count from Python
+                  if (data.new_count === 0) {
+                    event.target.remove();
+                  } else {
+                    // If not 0, finds the ".item-count" div INSIDE this form and updates it
+                    var countDiv = event.target.querySelector(".item-count");
+                    countDiv.innerText = data.new_count;
+                  }
+                } else {
+                  showToast("Something went wrong.");
+                }
+              });
+
+            showToast("Transaction pending! Contacting the spirits...");
+          });
+        });
+      });
+
+      function typeWriter(element, text, i = 0) {
+        // Base case: If all letters are typed, stop!
+        if (i >= text.length) return;
+
+        // Adds the current letter to the element
+        element.innerHTML += text.charAt(i);
+
+        // Scrolls to bottom (so the user doesn't lose track of the writing)
+        element.parentElement.scrollTop = element.parentElement.scrollHeight;
+
+        // Recursion: Waits 30ms, then types the NEXT letter (i + 1)
+        setTimeout(() => typeWriter(element, text, i + 1), 30);
+      }
+
+      function askShrine() {
+        // Gets the text
+        var inputField = document.getElementById("user-question");
+        var questionText = inputField.value;
+        var displayDiv = document.getElementById("chat-display");
+
+        if (questionText === "") return; // Don't send empty questions
+
+        // Shows user's question immediately
+        displayDiv.innerHTML += `<p class="chat-message-user"><strong>You:</strong> ${questionText}</p>`;
+        inputField.value = ""; // Clears the box
+
+        // Sends to Python (The Backend)
+        fetch("/ask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ question: questionText }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Creates the empty paragraph
+            var shrinePara = document.createElement("p");
+            shrinePara.className = "chat-message-shrine";
+            shrinePara.innerHTML = "<strong>Shrine:</strong> "; // Add the label immediately
+
+            // Adds it to the chat box so it appears
+            displayDiv.appendChild(shrinePara);
+
+            // Starts Writing Letter by Letter!
+            typeWriter(shrinePara, data.answer);
+
+            // Shows/displays the source (optional, but looks professional!)
+            if (data.source) {
+              var sourcePara = document.createElement("p");
+              sourcePara.className = "chat-source";
+              sourcePara.innerText = "(Source: " + data.source + ")";
+              displayDiv.appendChild(sourcePara);
+            }
+
+            // Auto-scrolls to the bottom
+            displayDiv.scrollTop = displayDiv.scrollHeight;
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            showToast("The spirits are currently unreachable.");
+          });
+      }
+
+      // Closing if user clicks outside the box
+      window.onclick = function (event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      };
+    </script>
+  </body>
+</html>

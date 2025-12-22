@@ -1,0 +1,5 @@
+The Shrine is a full-stack web application built to demonstrate software engineering principles.
+1. Backend: Written in Python using the Flask framework for routing and logic.
+2. Data: Uses SQLite for managing the inventory and user progress.
+3. AI Integration: The "Wisdom" feature uses Google's Gemini API to generate mystical advice.
+4. RAG Pipeline: The "Ask the Shrine" feature uses FAISS (Facebook AI Similarity Search) to index text documents and retrieve relevant answers based on user queries.
