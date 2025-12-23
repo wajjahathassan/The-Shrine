@@ -1,6 +1,6 @@
 import json
 import numpy as np
-
+import faiss
 from sentence_transformers import SentenceTransformer
 
 # --- GLOBAL SETUP (Runs only once!) ---
@@ -18,17 +18,23 @@ try:
         documents = data_map["documents"]
         doc_names = data_map["names"]
 
-    print("✅ The Shrine is ready (using NumPy for search).")
+    # Sets-up FAISS (The Librarian) ONE time
+    # It creates an index based on how long the vectors are (dimension)
+    dimension = embeddings.shape[1]
+    index = faiss.IndexFlatL2(dimension)
+    index.add(embeddings)   # We can say that it adds our books to the library
+
+    print("✅ The Shrine is ready.")
 
 except FileNotFoundError:
     print("Error: Embeddings not found. Did you run create_embeddings.py?")
     model = None
-    embeddings = None
+    index = None
 
 
 # --- THE NEWER FAST SEARCH FUNCTION ---
 def search_context(query):
-    if model is None or embeddings is None:
+    if model is None or index is None:
         return "System Error", "The Shrine's memory is damaged."
 
     # Translate the Question
@@ -36,16 +42,13 @@ def search_context(query):
     # It wraps the Question in a list [query] because the model expects a list
     query_vector = model.encode([query])
 
-    # Calculate Similarity (The Dot Product)
-    # Multiplying the query vector by ALL document vectors at once!
-    # This creates a list of scores, one for each document.
-    # Note: Using .T (Transpose) to line up the numbers for multiplication.
-    scores = np.dot(embeddings, query_vector.T)
+    # Searching!
+    # k=1 means "Give me the Top 1 best match"
+    k = 1
+    distances, indices = index.search(query_vector, k)
 
-    # Finds the Winner (The best matched document)
-    # np.argmax tells us the *index* of the highest score
-    best_doc_index = np.argmax(scores)
-
+    # The 'indices' result tells us which document number matched best
+    best_doc_index = indices[0][0]
     best_doc_text = documents[best_doc_index]
     best_doc_name = doc_names[best_doc_index]
 
