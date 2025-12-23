@@ -1,94 +1,116 @@
-# The Digital Shrine (RAG Portfolio Project)
+# The Shrine - Retrieval-Augmented Q&A Prototype (Flask)
 
-## Project Overview
+**Short summary**
+This repository is a small, focused prototype that combines a Flask web app, a local embedding + FAISS retrieval layer, and a generative model (Google Gemini) to answer user questions from a small local document set. It is intentionally a prototype - suitable for demos and learning. Production hardening is listed in the **Production notes** section.
 
-This project is a web application that acts as a digital shrine. I built it to demonstrate my full-stack development skills. It uses an AI "Caretaker" that answers questions based on specific text files I provided.
+---
 
-The main goal was to build a Retrieval-Augmented Generation (RAG) system from scratch. I wanted to show that I can connect a Python backend to a modern Large Language Model (LLM) and make it work with custom data.
+## Tech stack (quick)
 
-## Why I Built This
+- Python 3.9+ (recommended)
+- Flask - web server and templates
+- sentence-transformers (`all-MiniLM-L6-v2`) - embeddings
+- FAISS (`faiss-cpu`) - vector index / nearest-neighbor retrieval
+- Google Generative AI client (`google-generativeai`) - model generation
+- numpy - arrays and .npy storage
+- python-dotenv - local env vars
 
-I am currently looking to build my future in South Korea. I wanted to create a project that mixes high-tech engineering with the traditional feeling of a historic shrine.
+---
 
-Most tutorials just show how to use a pre-made tool. I wanted to understand how the search actually works, so I built the retrieval system myself using FAISS and Python.
+## Repo layout (important files)
 
-## Tech Stack
+- `app.py` - Flask application and all HTTP routes (`/`, `/sell`, `/ask`, etc.).
+- `the_shrine.py` - `Shrine` class: OOP business logic (inventory, persistence, actions).
+- `ask_shrine.py` - orchestration: retrieve context → assemble prompt → call Gemini.
+- `retrieve.py` - FAISS index loader and `search_context(query)` function.
+- `create_embeddings.py` - create embeddings from `data/*.txt` and write `shrine_embeddings.npy` + `shrine_map.json`.
+- `templates/` - `index.html`, `about.html` and Jinja2 templates.
+- `static/` - CSS, JS, and media assets.
+- `data/` - text documents used for retrieval (e.g., `lore_asan.txt`, `caretaker_rules.txt`, ...).
+- `.env` (not committed) - store `GOOGLE_API_KEY` here.
 
-I used the following tools to build this application:
+---
 
-- **Language:** Python 3.10+
-- **Web Framework:** Flask (for the backend server)
-- **Database:** FAISS (Facebook AI Similarity Search) for vector storage
-- **AI Model:** Google Gemini 1.5 Flash (via API)
-- **Frontend:** HTML5, CSS3, and JavaScript (Vanilla)
+## Prerequisites
 
-## Key Features
+1. Python 3.9 or newer installed.
+2. Virtual environment recommended.
+3. Internet access for model downloads and the Google Generative AI API (if using the `ask` flow).
+4. A valid Google Generative AI API key for `ask_shrine.py` (put in `.env` as `GOOGLE_API_KEY`).
 
-### 1. Retrieval-Augmented Generation (RAG)
+---
 
-The core of this project is the RAG pipeline.
+## How to run locally (step-by-step)
 
-- **Ingestion:** I wrote a script (`create_embeddings.py`) that reads text files and converts them into vector embeddings using `SentenceTransformer`.
-- **Retrieval:** When a user asks a question, the system uses FAISS to find the most similar text chunk in the database.
-- **Generation:** The retrieved text is combined with the user's question and sent to Google Gemini 1.5 Flash to generate an accurate answer.
+Open a terminal in the project root and follow these commands exactly.
 
-### 2. Contextual Chat Memory
+### 1) Create and activate a virtual environment
 
-The application supports multi-turn conversations.
+```bash
+python -m venv venv
+# macOS / Linux
+source venv/bin/activate
+# Windows (PowerShell)
+venv\Scripts\Activate.ps1
+```
 
-- **Problem:** Standard API calls are stateless, meaning the AI forgets the previous question immediately.
-- **Solution:** I implemented a global list in Flask that stores the conversation history. This history is passed to the AI with every new request, allowing it to understand pronouns like "he" or "it" based on previous context.
+### 2) Install dependencies
 
-### 3. Asynchronous Typing Effect
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-To match the "mystical" theme, answers do not appear instantly.
+### 3) Prepare environment variables
 
-- **Implementation:** I used a recursive JavaScript function to render the text one character at a time.
-- **Challenge:** I had to ensure that appending the "Source" citation did not interrupt the typing animation. I solved this by creating separate DOM elements for the answer and the source.
+Create a .env file in the project root with the following line:
+`GOOGLE_API_KEY=your_real_google_generative_api_key_here`
+Do not commit `.env` to source control.
 
-## How to Run
+### 4) Create embeddings (one-time step after you add `data/\*.txt`)
 
-### Prerequisites
+```bash
+python create_embeddings.py
+```
 
-- Python 3.10 or higher
-- A Google Gemini API Key
+- This reads the files listed in `create_embeddings.py` (the `data` folder).
+- It writes `shrine_embeddings.npy` and `shrine_map.json`.
+- If no documents exist, the script warns and exits.
 
-### Installation
+### 5) (Optional) Test retrieval locally
 
-1. **Clone the repository:**
+```bash
+python retrieve.py
+```
 
-   ```bash
-   git clone [https://github.com/yourusername/shrine-rag.git](https://github.com/yourusername/shrine-rag.git)
-   cd shrine-rag
-   ```
+- This runs a simple interactive loop. Type a question to see which document is retrieved.
 
-2. **Create and activate a virtual environment:**
-   python -m venv .venv
+### 6) Run the Flask app
 
-# Windows:
+```bash
+python app.py
+```
 
-.venv\Scripts\activate
+- By default it runs in debug mode on `http://127.0.0.1:5000`.
+- Open the URL in your browser and try the chat box ("Ask the Spirits"). The `/ask` endpoint runs retrieval + Gemini generation.
 
-# Mac/Linux:
-
-source .venv/bin/activate
-
-3. **Install dependencies:**
-   pip install -r requirements.txt
-
-### Setup
-
-1. Create a .env file in the root directory.
-
-2. Add your Google API key:
-   GOOGLE_API_KEY=your_api_key_here
-
-### Usage
-
-1. **Build the Vector Database:** Run the ingestion script to read the text files in data/ and generate the FAISS index.
-   python create_embeddings.py
-
-2. **Start the Caretaker:** Launch the Flask web server.
-   python app.py
-
-3. **Visit the Shrine:** Open your browser and go to http://127.0.0.1:5000.
+```mermaid
+flowchart LR
+  Browser["Browser (index.html)"]
+  Browser -->|POST /ask (JSON)| Flask["Flask app (app.py)"]
+  Flask -->|call| Ask["ask_shrine.py"]
+  Ask -->|call| Retrieve["retrieve.py (FAISS index)"]
+  Retrieve -->|returns context| Ask
+  Ask -->|call| Gemini["Google Generative AI (Gemini)"]
+  Gemini -->|answer| Ask
+  Ask -->|returns JSON| Flask
+  Flask -->|response| Browser
+  subgraph Storage
+    embeddings["shrine_embeddings.npy"]
+    map["shrine_map.json"]
+    data_files["data/*.txt"]
+  end
+  Retrieve --> embeddings
+  Retrieve --> map
+  Retrieve --> data_files
+```
