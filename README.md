@@ -63,11 +63,11 @@ pip install -r requirements.txt
 
 ### 3) Prepare environment variables
 
-Create a .env file in the project root with the following line:
+Create a `.env` file in the project root with the following line:
 `GOOGLE_API_KEY=your_real_google_generative_api_key_here`
 Do not commit `.env` to source control.
 
-### 4) Create embeddings (one-time step after you add `data/\*.txt`)
+### 4) Create embeddings (one-time step after you add `data/*.txt`)
 
 ```bash
 python create_embeddings.py
@@ -96,21 +96,17 @@ python app.py
 
 ```mermaid
 flowchart LR
-  Browser["Browser (index.html)"]
-  Browser -->|POST /ask (JSON)| Flask["Flask app (app.py)"]
-  Flask -->|call| Ask["ask_shrine.py"]
-  Ask -->|call| Retrieve["retrieve.py (FAISS index)"]
-  Retrieve -->|returns context| Ask
-  Ask -->|call| Gemini["Google Generative AI (Gemini)"]
-  Gemini -->|answer| Ask
-  Ask -->|returns JSON| Flask
-  Flask -->|response| Browser
-  subgraph Storage
-    embeddings["shrine_embeddings.npy"]
-    map["shrine_map.json"]
-    data_files["data/*.txt"]
-  end
-  Retrieve --> embeddings
-  Retrieve --> map
-  Retrieve --> data_files
+    A["Browser"] --> B["Flask app"]
+    B --> C["ask_shrine.py"]
+    C --> D["retrieve.py"]
+    D --> E["Google Gemini API"]
+    subgraph DataFiles
+        F["shrine_embeddings.npy"]
+        G["shrine_map.json"]
+        H["data/*.txt"]
+    end
+    D --> F
+    D --> G
+    D --> H
+
 ```
