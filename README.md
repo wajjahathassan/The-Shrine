@@ -9,13 +9,25 @@ This repository is a small, focused prototype that combines a Flask web app, a l
 
 - Python 3.9+ (recommended)
 - Flask - web server and templates
-- sentence-transformers (`all-MiniLM-L6-v2`) - embeddings
-- FAISS (`faiss-cpu`) - vector index / nearest-neighbor retrieval
-- Google Generative AI client (`google-generativeai`) - model generation
-- numpy - arrays and .npy storage
+- Google Gen AI SDK (`google-genai`) - used for BOTH embeddings and generation
+- numpy - arrays and .npy storage for vector search
 - python-dotenv - local env vars
 
 ---
+
+## Update (v2.0 Refactor)
+
+I had to change how the "memory" works because of deployment limits.
+
+Originally, this project used `sentence-transformers` (local PyTorch model) and `FAISS` to handle the search. It worked great on my laptop, but when I tried to deploy it to the free tier of PythonAnywhere, it crashed because the disk quota is only 512 MB. The PyTorch libraries alone were nearly 900 MB.
+
+To fix this, I refactored the architecture:
+
+1. **Removed heavy libraries:** Deleted `torch`, `sentence-transformers`, and `faiss`.
+2. **Cloud Embeddings:** Switched to `google-genai` to generate embeddings in the cloud instead of calculating them locally.
+3. **NumPy Search:** Since I only have a small number of text files, I replaced FAISS with standard NumPy dot-product math. It is lightweight and fast enough for this scale.
+
+Now the whole app fits easily within the free tier limits.
 
 ## Repo layout (important files)
 
@@ -99,14 +111,21 @@ flowchart LR
     A["Browser"] --> B["Flask app"]
     B --> C["ask_shrine.py"]
     C --> D["retrieve.py"]
-    D --> E["Google Gemini API"]
-    subgraph DataFiles
+
+    subgraph Cloud
+        E["Google Gemini API (Embeddings + Chat)"]
+    end
+
+    D --> E
+    C --> E
+
+    subgraph LocalData
         F["shrine_embeddings.npy"]
         G["shrine_map.json"]
         H["data/*.txt"]
     end
+
     D --> F
     D --> G
-    D --> H
 
 ```
