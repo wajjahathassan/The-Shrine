@@ -1,6 +1,5 @@
 Flask
 python-dotenv
-google-generativeai
-sentence-transformers
+google-genai
 numpy
 gunicorn

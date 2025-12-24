@@ -1,48 +1,82 @@
 import os
+import glob
 import json
 import numpy as np
-from sentence_transformers import SentenceTransformer
+from google import genai
+from google.genai import types
+from dotenv import load_dotenv
 
-# Setup my data source
-data_folder = "data"
-files = ["lore_asan.txt", "caretaker_rules.txt",
-         "tech_stack.txt", "author_bio.txt"]
+# Not using 'sentence_transformers' because it is a heavy library,
+# and I need to upload my code to PythonAnywhere for a live demo.#
+##### from sentence_transformers import SentenceTransformer #####
+# Not using 'sentence_transformers' because it is a heavy library,
+# and I need to upload my code to PythonAnywhere for a live demo.#
 
-# Load The pre-trained model
-# This downloads a small model the first time someone runs it.
-print("Loading the model...")
-model = SentenceTransformer('all-MiniLM-L6-v2')
+# --- SETUP --- #
+load_dotenv()
+my_key = os.getenv("GOOGLE_API_KEY")
 
-documents = []
-doc_names = []
+if not my_key:
+    print("❌ Error: GOOGLE_API_KEY not found in .env file!")
+    exit()
 
-# Read the text files
-print("Reading files...")
-for filename in files:
-    file_path = os.path.join(data_folder, filename)
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
+# 1. Connecting to Google #
+client = genai.Client(api_key=my_key)
+
+# --- SETTINGS --- #
+# Using a specific model optimized for retrieval (searching) #
+MODEL_NAME = "text-embedding-004"
+
+
+def make_the_embeddings():
+    print("🧹 Clearing old memory...")
+    all_text_chunks = []
+    all_filenames = []
+
+    # 2. Reads the Files #
+    text_files = glob.glob("data/*.txt")
+
+    for filename in text_files:
+        with open(filename, "r", encoding="utf-8") as f:
             content = f.read().strip()
-            documents.append(content)
-            doc_names.append(filename)
-            print(f" - Loaded: {filename}")
-    except FileNotFoundError:
-        print(
-            f" WARNING: Could not find {filename}. Make sure it is in the 'data' folder!")
+            # Skipping empty files #
+            if content:
+                all_text_chunks.append(content)
+                # Saving just the generic name (e.g., "lore_asan.txt")
+                all_filenames.append(os.path.basename(filename))
+                print(f"📖 Read: {filename}")
 
-# Turn text into numbers (Embeddings)
-if documents:
-    print("Converting text to numbers...")
-    embeddings = model.encode(documents)
+    if not all_text_chunks:
+        print("❌ No text found! Are your .txt files in the 'data/' folder?")
+        return
 
-    # Save the results
-    # It saves the numbers to a .npy file (fast math format)
+    print(f"🧠 Sending {len(all_text_chunks)} memories to the Cloud...")
+
+    # 3. GENERATING EMBEDDINGS #
+    # Instead of model.encode(), I'm asking Google to do it. #
+
+    response = client.models.embed_content(
+        model=MODEL_NAME,
+        contents=all_text_chunks,
+        config=types.EmbedContentConfig(
+            # Tells Google: "These are facts to be searched later" #
+            task_type="RETRIEVAL_DOCUMENT"
+        )
+    )
+
+    # Google sends back a list of embedding objects. #
+    # I need to extract the 'values' from each one. #
+    embeddings = np.array([e.values for e in response.embeddings])
+
+    # 4. Saves the Data (Using NumPy) #
     np.save("shrine_embeddings.npy", embeddings)
 
-    # It saves the actual text to a .json file so the user can look it up later
+    # I also need to save the map so I know which text belongs to which file #
     with open("shrine_map.json", "w") as f:
-        json.dump({"documents": documents, "names": doc_names}, f)
+        json.dump({"documents": all_text_chunks, "names": all_filenames}, f)
 
-    print("✅ Success! 'shrine_embeddings.npy' and 'shrine_map.json' created.")
-else:
-    print("❌ No documents found. Please check your data folder.")
+    print("✅ Success! The Shrine's new Cloud Memory is saved.")
+
+
+if __name__ == "__main__":
+    make_the_embeddings()

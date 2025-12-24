@@ -1,18 +1,26 @@
 import json
+import os
 import numpy as np
+from google import genai
+from google.genai import types
+from dotenv import load_dotenv
 
-from sentence_transformers import SentenceTransformer
+# --- SETUP ---
+load_dotenv()
+my_key = os.getenv("GOOGLE_API_KEY")
 
-# --- GLOBAL SETUP (Runs only once!) ---
-# --- FASTER VERSION ---
-print("⏳ The Shrine is awakening (Loading AI Models)...")
+if not my_key:
+    print("❌ Error: GOOGLE_API_KEY not found in .env file!")
+    model = None
+else:
+    client = genai.Client(api_key=my_key)
 
+# --- LOAD DATA ---
+print("⏳ The Shrine is awakening (Loading Cloud Memory)...")
 try:
-    # Loads the Brain ONE time
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-
-    # Loads our data (The Book) ONE time
+   # Loads our data (The Book) ONE time
     embeddings = np.load("shrine_embeddings.npy")
+
     with open("shrine_map.json", "r") as f:
         data_map = json.load(f)
         documents = data_map["documents"]
@@ -22,34 +30,41 @@ try:
 
 except FileNotFoundError:
     print("Error: Embeddings not found. Did you run create_embeddings.py?")
-    model = None
     embeddings = None
 
 
 # --- THE NEWER FAST SEARCH FUNCTION ---
 def search_context(query):
-    if model is None or embeddings is None:
+    if embeddings is None:
         return "System Error", "The Shrine's memory is damaged."
 
-    # Translate the Question
-    # Just does the quick math!
-    # It wraps the Question in a list [query] because the model expects a list
-    query_vector = model.encode([query])
+    try:
+        # 1. Embeds the Query (Cloud Side) ☁️
+        # I ask Google to turn the question into numbers
+        response = client.models.embed_content(
+            model="text-embedding-004",
+            contents=query,
+            config=types.EmbedContentConfig(
+                task_type="RETRIEVAL_QUERY"  # optimized for questions
+            )
+        )
 
-    # Calculate Similarity (The Dot Product)
-    # Multiplying the query vector by ALL document vectors at once!
-    # This creates a list of scores, one for each document.
-    # Note: Using .T (Transpose) to line up the numbers for multiplication.
-    scores = np.dot(embeddings, query_vector.T)
+        # Extracts the vector from the response object
+        query_vector = np.array(response.embeddings[0].values)
 
-    # Finds the Winner (The best matched document)
-    # np.argmax tells us the *index* of the highest score
-    best_doc_index = np.argmax(scores)
+        # 2. Math (Dot Product)
+        # Compares the question vector to all document vectors
+        scores = np.dot(embeddings, query_vector)
 
-    best_doc_text = documents[best_doc_index]
-    best_doc_name = doc_names[best_doc_index]
+        # 3. Finds the Winner (The best matched document)
+        # np.argmax tells me the *index* of the highest score
+        best_doc_index = np.argmax(scores)
 
-    return best_doc_name, best_doc_text
+        return doc_names[best_doc_index], documents[best_doc_index]
+
+    except Exception as e:
+        print(f"Search Error: {e}")
+        return "Error", "I could not search the memory."
 
 
 if __name__ == "__main__":
